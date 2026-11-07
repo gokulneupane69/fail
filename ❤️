@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>I Love You Elena</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Playfair+Display:ital,wght@0,500;1,500&display=swap');
+
+        :root {
+            --bg-dark: #05050a;
+            --neon-purple: #a855f7;
+            --neon-pink: #ff2a75;
+            --neon-cyan: #00e5ff;
+            --gold: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            height: 100vh;
+            height: 100dvh;
+            background-color: var(--bg-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- THE CRUSH EFFECT --- */
+        .text-content, .gotcha-emoji, .sorry-content, .long-message-container {
+            z-index: 5;
+            transition: transform 0.5s cubic-bezier(0.85, 0, 0.15, 1), opacity 0.3s;
+        }
+
+        .lines-close .text-content,
+        .lines-close .sorry-content {
+            transform: scaleX(0) !important;
+            opacity: 0;
+        }
+
+        .lines-close .gotcha-emoji {
+            transform: translate(-50%, -50%) scale(0) !important;
+            opacity: 0;
+        }
+
+        .lines-close .long-message-container {
+            transform: scale(0.5) !important;
+            opacity: 0;
+            filter: blur(10px);
+        }
+
+        /* --- 1. THE ORIGINAL TEXT --- */
+        .text-content {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            font-size: clamp(2rem, 7vw, 4rem);
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);
+            white-space: nowrap;
+        }
+
+        .word { opacity: 0; transform: translateY(15px); animation: reveal 0.4s forwards; }
+        .w-i { animation-delay: 0.5s; margin-right: 10px; }
+        .w-you { animation-delay: 1.2s; margin-left: 10px; margin-right: 10px; }
+        .w-elena { animation-delay: 1.5s; }
+
+        .swap-box { 
+            display: inline-grid; 
+            place-items: center; 
+            width: 4.5em; 
+            position: relative;
+        }
+
+        .text-love {
+            grid-area: 1 / 1;
+            animation: reveal 0.4s forwards 0.8s, hideLove 0.4s forwards 2.8s;
+        }
+        
+        .heart {
+            grid-area: 1 / 1;
+            color: var(--neon-pink);
+            opacity: 0;
+            transform: scale(0);
+            text-shadow: 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink);
+            animation: popHeart 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 3s;
+        }
+
+        /* --- 2. THE CLOSING LINES --- */
+        .line {
+            position: absolute;
+            top: 0;
+            width: 12px;
+            height: 100vh;
+            background: #fff;
+            box-shadow: 0 0 15px #fff, 0 0 30px var(--neon-purple);
+            opacity: 0;
+            z-index: 10;
+            transition: transform 0.5s cubic-bezier(0.85, 0, 0.15, 1), 
+                        opacity 0.3s,
+                        background 0.3s,
+                        box-shadow 0.3s;
+        }
+
+        .line.left { left: 0; transform: translate(-100vw, 0); }
+        .line.right { right: 0; transform: translate(100vw, 0); }
+
+        .lines-close .line {
+            opacity: 1;
+            background: var(--neon-pink);
+            box-shadow: 0 0 20px var(--neon-pink), 0 0 50px var(--neon-pink);
+        }
+        
+        .lines-close .line.left { transform: translate(calc(50vw - 6px), 0); }
+        .lines-close .line.right { transform: translate(calc(-50vw + 6px), 0); }
+
+        /* --- 3. THE MIDDLE FINGER --- */
+        .gotcha-emoji {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: clamp(6rem, 20vw, 12rem);
+            line-height: 1;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0) rotate(-45deg);
+            filter: drop-shadow(0 0 20px var(--neon-pink)) drop-shadow(0 0 40px var(--neon-purple));
+            pointer-events: none;
+        }
+
+        .gotcha-emoji.reveal {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            animation: pulsePink 1.5s infinite alternate 0.5s;
+        }
+
+        /* --- 4. THE SORRY TEXT --- */
+        .sorry-content {
+            font-family: 'Poppins', sans-serif;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .sorry-content.reveal { opacity: 1; }
+
+        .sorry-line { display: flex; gap: 15px; margin-bottom: 10px; }
+
+        .s-word {
+            display: inline-block;
+            font-size: clamp(2rem, 7vw, 4rem);
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+            opacity: 0;
+            transform: translateY(30px) scale(0.5);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .sorry-content.reveal .s-word.w1 { transition-delay: 0.1s; opacity: 1; transform: translateY(0) scale(1); }
+        .sorry-content.reveal .s-word.w2 { transition-delay: 0.3s; opacity: 1; transform: translateY(0) scale(1); }
+        .sorry-content.reveal .s-word.w3 { transition-delay: 0.5s; opacity: 1; transform: translateY(0) scale(1); }
+        .sorry-content.reveal .s-word.w4 { transition-delay: 0.7s; opacity: 1; transform: translateY(0) scale(1); }
+
+        .sorry-emoji {
+            font-size: clamp(3rem, 10vw, 6rem);
+            margin-top: 15px;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.5));
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: shake 0.5s ease-in-out infinite alternate;
+            line-height: 1;
+        }
+
+        .sorry-content.reveal .sorry-emoji { transition-delay: 1.0s; opacity: 1; transform: scale(1); }
+
+        /* --- 5. THE LONG BEAUTIFUL MESSAGE --- */
+        .long-message-container {
+            position: absolute;
+            width: 85%;
+            max-width: 700px;
+            height: 75vh; 
+            overflow: hidden;
+            mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .long-message-container.reveal {
+            opacity: 1;
+        }
+
+        .long-message-text {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+            line-height: 1.8;
+            color: #f8fafc;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            position: absolute;
+            top: 100%; 
+            width: 100%;
+            padding: 20px;
+        }
+
+        /* 55 second slow scroll */
+        .long-message-container.reveal .long-message-text {
+            animation: scrollUp 55s linear forwards; 
+        }
+
+        .highlight {
+            color: var(--gold);
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+            font-style: italic;
+        }
+
+        /* --- KEYFRAMES --- */
+        @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+        
+        @keyframes hideLove {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+
+        @keyframes popHeart {
+            0% { opacity: 0; transform: scale(0) rotate(-45deg); }
+            70% { opacity: 1; transform: scale(1.2) rotate(10deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        @keyframes pulsePink {
+            0% { filter: drop-shadow(0 0 15px var(--neon-pink)) drop-shadow(0 0 30px var(--neon-purple)); transform: translate(-50%, -50%) scale(1); }
+            100% { filter: drop-shadow(0 0 30px var(--neon-pink)) drop-shadow(0 0 60px var(--neon-purple)); transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(-10deg) scale(1); }
+            100% { transform: rotate(10deg) scale(1.1); }
+        }
+
+        @keyframes scrollUp {
+            0% { top: 100%; }
+            100% { top: -280%; } 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scene" id="scene">
+        <div class="line left"></div>
+        
+        <!-- 1. Initial Text -->
+        <div class="text-content" id="text-group">
+            <span class="word w-i">I</span>
+            <div class="swap-box">
+                <span class="text-love">love</span>
+                <span class="heart">❤️</span>
+            </div>
+            <span class="word w-you">you</span>
+            <span class="word w-elena">Elena</span>
+        </div>
+
+        <!-- 2. Middle Finger -->
+        <div class="gotcha-emoji" id="gotcha">🖕</div>
+
+        <!-- 3. Sorry Text -->
+        <div class="sorry-content" id="sorry-text">
+            <div class="sorry-line">
+                <span class="s-word w1">I</span>
+                <span class="s-word w2">am</span>
+                <span class="s-word w3">so</span>
+                <span class="s-word w4">sorry</span>
+            </div>
+            <div class="sorry-emoji">🤪😓</div>
+        </div>
+
+        <!-- 4. The Long Beautiful Message -->
+        <div class="long-message-container" id="long-message">
+            <div class="long-message-text">
+                My lady, I wish you could see yourself through my eyes just once, maybe then you would understand why you mean so much to me. 🥹🤍<br><br>
+                
+                Like, do you even realise that someone who wasn't even part of my life a little while ago has now become someone I can't imagine my days without?<br><br>
+                
+                Since I met you, even the smallest things have started making me happy. I look forward to your messages, your random talks, your silly jokes, and even our little arguments.<br><br>
+                
+                And honestly, I don't want to be there only for your happy moments. I wanna be there when you're upset, when you're angry, when you feel like nobody understands you, and when you don't even know how to explain what's wrong. I wanna listen, understand, make you smile again, and remind you that you don't have to face every difficult day pretending to be okay.<br><br>
+                
+                I know I can't make every day perfect, but I really hope I can become one of the reasons you have beautiful memories to look back on.<br><br>
+                
+                Because you have already given me so many reasons to be happy, <span class="highlight">Elena</span>, and I hope I can give you even a little of that happiness back.<br><br>
+                
+                Please never think your presence is ordinary to me. Out of all the people I could've met, I'm so grateful life brought me to you. And if you ever forget how special you are, I'll remind you as many times as it takes.<br><br>
+                
+                I mean that, my lady. 🤍🌻
+            </div>
+        </div>
+
+        <div class="line right"></div>
+    </div>
+
+    <script>
+        const scene = document.getElementById('scene');
+        const textGroup = document.getElementById('text-group');
+        const gotcha = document.getElementById('gotcha');
+        const sorryText = document.getElementById('sorry-text');
+        const longMessage = document.getElementById('long-message');
+
+        const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        async function runSequence() {
+            // Wait for initial text to type & heart to pop
+            await wait(3600);
+            
+            // CLOSE 1 (Crush love text)
+            scene.classList.add('lines-close');
+            await wait(1000);
+            
+            // OPEN 1 (Reveal 🖕)
+            scene.classList.remove('lines-close');
+            textGroup.style.display = 'none'; 
+            gotcha.style.display = 'block';
+            setTimeout(() => gotcha.classList.add('reveal'), 100); 
+            await wait(2500); 
+            
+            // CLOSE 2 (Crush 🖕)
+            scene.classList.add('lines-close');
+            await wait(1000);
+            
+            // OPEN 2 (Reveal Sorry)
+            scene.classList.remove('lines-close');
+            gotcha.style.display = 'none'; 
+            gotcha.classList.remove('reveal'); 
+            
+            sorryText.style.display = 'flex';
+            setTimeout(() => sorryText.classList.add('reveal'), 100); 
+            await wait(3500); 
+            
+            // CLOSE 3 (Crush Sorry)
+            scene.classList.add('lines-close');
+            await wait(1000);
+
+            // OPEN 3 (Reveal the Long Message)
+            scene.classList.remove('lines-close');
+            sorryText.style.display = 'none';
+            sorryText.classList.remove('reveal');
+
+            longMessage.style.display = 'block';
+            setTimeout(() => longMessage.classList.add('reveal'), 100);
+
+            // Wait for the scrolling text to finish (55 seconds scroll time + 1.5 seconds buffer)
+            await wait(56500);
+
+            // FINAL CLOSE (Crush the Long Message)
+            scene.classList.add('lines-close');
+            await wait(1000);
+            longMessage.style.display = 'none';
+        }
+
+        // Start the show
+        runSequence();
+    </script>
+</body>
+</html>
